@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSION="LdapLibreOfficeTemplateGenerator v 1.0 - 2014 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/i3gpVV"
+VERSION="LdapLibreOfficeTemplateGenerator v 1.0 - 2014 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/c62RYH"
 SCRIPT_DIR=$(dirname $0)
 SCRIPT_NAME=$(basename $0)
 SCRIPT_NAME_WITHOUT_EXT=$(echo "${SCRIPT_NAME}" | cut -f1 -d '.')
@@ -53,7 +53,7 @@ help () {
 	echo -e "\t-s <URL Serveur LDAP> :               URL du serveur LDAP (ex. : 'ldap://ldap.serveur.office.com')."
 	echo -e "\t-t <template LibreOffice source> :    Chemin complet du fichier template OTT LibreOffice source à utiliser,"
 	echo -e "\t                                      avec extension ott (ex. : '/Users/moi/templates/master_template.ott')."
-	echo -e "\nOptional options:"
+	echo -e "\nParamètres optionnels :"
 	echo -e "\t-a <LDAP admin UID>:                  UID de l'administrateur ou utilisateur LDAP si un Bind est nécessaire"
 	echo -e "\t                                      pour consulter l'annuaire (i.e.: 'diradmin')."
 	echo -e "\t-p <LDAP admin password>:             Mot de passe de l'utilisateur si un Bind est nécessaire pour consulter"
