@@ -54,26 +54,26 @@ help () {
 	echo -e "\t-t <template LibreOffice source> :    Chemin complet du fichier template OTT LibreOffice source à utiliser,"
 	echo -e "\t                                      avec extension ott (ex. : '/Users/moi/templates/master_template.ott')."
 	echo -e "\nParamètres optionnels :"
-	echo -e "\t-a <LDAP admin UID>:                  UID de l'administrateur ou utilisateur LDAP si un Bind est nécessaire"
-	echo -e "\t                                      pour consulter l'annuaire (i.e.: 'diradmin')."
-	echo -e "\t-p <LDAP admin password>:             Mot de passe de l'utilisateur si un Bind est nécessaire pour consulter"
+	echo -e "\t-a <LDAP admin UID> :                 UID de l'administrateur ou utilisateur LDAP si un Bind est nécessaire"
+	echo -e "\t                                      pour consulter l'annuaire (ex. : 'diradmin')."
+	echo -e "\t-p <LDAP admin password> :            Mot de passe de l'utilisateur si un Bind est nécessaire pour consulter"
 	echo -e "\t                                      l'annuaire (sera demandé si absent)."
 	echo -e "\t-u <DN relatif branche Users> :       DN relatif de la branche Users du LDAP"
 	echo -e "\t                                      (ex. : 'cn=allusers', par défaut : '${LDAP_DN_USER_BRANCH}')"
 	echo -e "\t-D <filtre domaine email> :           L'utilisation de ce paramètre permet de restreindre la processus aux utilisateurs"
 	echo -e "\t                                      du LDAP disposant d'une adresse email contenant un domaine"
 	echo -e "\t                                      (ex. : '-D mondomaine.fr' ou '-D @serveur.mail.domaine.fr')."
-	echo -e "\t-d <domaine email prioritaire> :      Permets de n'exporter que les adresses email contenant le domaine,"
+	echo -e "\t-d <domaine email prioritaire> :      Permet de n'exporter que les adresses email contenant le domaine,"
 	echo -e "\t                                      (ex. : '-d mondomaine.fr' ou '-d @serveur.mail.domaine.fr')."
 	echo -e "\t-U <UID de l'utilisateur à traiter> : Utilisateur à rechercher dans le LDAP pour créer un template personnalisé,"
 	echo -e "\t                                      par défaut l'UID suivant est utilisé : ${USER_UID}"
-	echo -e "\t-i <IP>:                              Utiliser cette option pour restreindre le lancement de la commande"
-	echo -e "\t                                      uniquement depuis certaines adresse IP, séparées par le caratère '%'"
-	echo -e "\t                                      (i.e.: '123.123.123.123%12.34.56.789')"
-	echo -e "\t-P <chemin export>:                   Chemin complet du dossier vers lequel exporter le résultat"
+	echo -e "\t-i <IP> :                             Utiliser cette option pour restreindre le lancement de la commande"
+	echo -e "\t                                      uniquement depuis certaines adresse IP, séparées par le caractère '%'"
+	echo -e "\t                                      (ex. : '123.123.123.123%12.34.56.789')"
+	echo -e "\t-P <chemin export> :                  Chemin complet du dossier vers lequel exporter le résultat"
 	echo -e "\t                                      (ex. : '~/Desktop/' ou '/var/templatesoffice/', par défaut : '${STANDARD_DIR_EXPORT}'"
-	echo -e "\t-T <tag des exports>:                 Tag à ajouter au début du nom de fichier du temlate généré pour l'identier."	
-	echo -e "\t-j <fichier Log>:                     Assure la journalisation dans un fichier de log à renseigner en paramètre."
+	echo -e "\t-T <tag des exports> :                Tag à ajouter au début du nom de fichier du template généré pour l'identifier."	
+	echo -e "\t-j <fichier Log> :                    Assure la journalisation dans un fichier de log à renseigner en paramètre."
 	echo -e "\t                                      (ex. : '${LOG}')"
 	echo -e "\t                                      ou utilisez 'default' (${LOG})"
 }
@@ -92,7 +92,7 @@ function error () {
 }
 
 function alldone () {
-	# Logging if needed, redirect standard outpout
+	# Journalisation si nécessaire et redirection de la sortie standard
 	[ ${1} -eq 0 ] && echo "" && echo ">>> Processus terminé OK !"
 	if [ ${LOG_ACTIVE} -eq 1 ]; then
 		exec 1>&6 6>&-
@@ -100,7 +100,7 @@ function alldone () {
 		cat ${LOG_TEMP} >> ${LOG}
 		cat ${LOG_TEMP}
 	fi
-	# Remove temp files/folder
+	# Suppression des fichiers et répertoires temporaires
 	[ -f ${LOG_TEMP} ] && rm -r ${LOG_TEMP}
 	[ -f ${TEMP_IP} ] && rm -r ${TEMP_IP}
 	[ -f ${CONTENT_USER} ] && rm -r ${CONTENT_USER}
@@ -113,6 +113,7 @@ function alldone () {
 	exit ${1}
 }
 
+# Fonction utilisée plus tard pour les résultats de requêtes LDAP encodées en base64
 function base64decode () {
 	echo ${1} | grep :: > /dev/null 2>&1
 	if [ $? -eq 0 ] 
@@ -125,8 +126,8 @@ function base64decode () {
 	fi
 }
 
+# Vérification des options/paramètres du script 
 optsCount=0
-
 while getopts "hr:s:t:a:p:u:D:d:i:P:T:j:U:" OPTION
 do
 	case "$OPTION" in
@@ -184,7 +185,7 @@ if [[ ${WITH_LDAP_BIND} = "yes" ]] && [[ ${LDAP_ADMIN_PASS} = "" ]]
 	read -s LDAP_ADMIN_PASS
 fi
 
-# Redirect standard outpout to temp file
+# Redirection de la sortie strandard vers le fichier de log
 if [ $LOG_ACTIVE -eq 1 ]; then
 	echo -e "\n >>> Please wait ... >>> Merci de patienter ..."
 	exec 6>&1
@@ -199,20 +200,20 @@ echo -e "$0 démarré..."
 EXTENSION_TEMPLATE_MASTER=$(echo "${OTT_MASTER_FILE}" | sed 's/^.*\(...$\)/\1/' | perl -p -e 's/ //g' | perl -p -e 's/\.//g')
 [[ ! ${EXTENSION_TEMPLATE_MASTER} == ott ]] && error 6 "Format de fichier modèle ${OTT_MASTER_FILE} incorrect."
 
-# par sécurité, attendons quelques instants
+# Par sécurité, attendons quelques instants
 sleep 5
 
-# testons si une connection internet est ouverte
+# Testons si une connection internet est ouverte
 dig +short myip.opendns.com @resolver1.opendns.com > /dev/null 2>&1
 [ $? -ne 0 ] && error 1 "Non connecté à internet."
 
-# récupérons notre IP dans un fichier temporaire
+# Récupérons notre IP dans un fichier temporaire
 TEST_CONNECT=$(dig +short myip.opendns.com @resolver1.opendns.com)
 echo ${TEST_CONNECT} > $TEMP_IP
 echo "Adresse IP actuelle :"
 cat ${TEMP_IP}
 
-# testons si nous sommes connectés sur un réseau ayant pour IP Publique une IP autorisée
+# Testons si nous sommes connectés sur un réseau ayant pour IP Publique une IP autorisée
 if [[ ${IP_FILTER} -ne 0 ]]; then
 	IP_OK=O
 	for IP in $(cat ${LISTE_IP})
@@ -223,7 +224,7 @@ if [[ ${IP_FILTER} -ne 0 ]]; then
 	[[ ${IP_OK} -eq 0 ]] && error 2 "Connecté à internet hors du réseau local."
 fi
 
-# test connection LDAP
+# Test connection LDAP
 echo -e "\nConnecting LDAP at $LDAP_URL..."
 [[ ${WITH_LDAP_BIND} = "no" ]] && LDAP_COMMAND_BEGIN="ldapsearch -LLL -H ${LDAP_URL} -x"
 [[ ${WITH_LDAP_BIND} = "yes" ]] && LDAP_COMMAND_BEGIN="ldapsearch -LLL -H ${LDAP_URL} -D uid=${LDAP_ADMIN_UID},${LDAP_DN_USER_BRANCH},${LDAP_DN_BASE} -w ${LDAP_ADMIN_PASS}"
@@ -260,6 +261,7 @@ META="${DIR_MODELE}/meta.xml"
 # Récupérer les variables nécessaires
 ${LDAP_COMMAND_BEGIN} -b ${LDAP_DN_USER_BRANCH},${LDAP_DN_BASE} -x uid=${USER_UID} givenName sn cn title telephoneNumber mobile mail initials > ${CONTENT_USER_BASE}
 
+# Décodage des informations
 OLDIFS=$IFS; IFS=$'\n'
 for LINE in $(cat ${CONTENT_USER_BASE})
 do
@@ -267,18 +269,25 @@ do
 done
 IFS=$OLDIFS
 
-# Nom Prénom Titre
+# Récupération des données
+# Nom (de famille)
+# Prénom 
+# Titre (fonction)
 NOMCOMPLET=$(cat ${CONTENT_USER} | grep ^cn: | perl -p -e 's/cn: //g')
 NOM=$(cat ${CONTENT_USER} | grep ^sn: | perl -p -e 's/sn: //g')
 PRENOM=$(cat ${CONTENT_USER} | grep ^givenName: | perl -p -e 's/givenName: //g')
 TITRE=$(cat ${CONTENT_USER} | grep ^title: | perl -p -e 's/title: //g')
-# Initiales
-# Si existe dans LDAP
+# Traitement des initiales
+# Si existe dans LDAP, on récupère dans le LDAP
 INITIALES=$(cat ${CONTENT_USER} | grep ^initials: | perl -p -e 's/initials: //g')
-# Sinon on génère les initiales
+# Si les initiales ne sont pas renseignée dans le LDAP on les génère depuis le Nom et le Prénom
 [[ -z ${INITIALES} ]] && INITIALES="${PRENOM:0:1}${NOM:0:1}"
 
 # Email
+# Si plusieurs emails sont renseignés pour l'utilisateur dans le LDAP on garde prioritairement 
+# celui qui contient l'UID de l'utilisateur 
+# et si le paramètre -d est utilisé on garde prioritairement (si l'un des emails correspond)
+# une adresse email qui contient le nom de domaine renseigné en paramètre
 cat ${CONTENT_USER} | grep ^mail: | perl -p -e 's/mail: //g' > ${LISTE_MAIL}
 LINES_NUMBER=$(cat ${LISTE_MAIL} | grep "." | wc -l) 
 if [ ${LINES_NUMBER} -eq 1 ]; then
@@ -311,7 +320,7 @@ elif [ ${LINES_NUMBER} -gt 1 ]; then
 	fi
 fi
 
-# Fonction format tel
+# Fonction formatant au format international les numéros de téléphone
 function telFormat () {
 	NUMBER_TEL=$(echo ${1} | perl -p -e 's/\.//g' | perl -p -e 's/ //g' | perl -p -e 's/\(//g' | perl -p -e 's/\)//g')
 	if [[ ${#NUMBER_TEL} -eq 10 ]] && [[ ${NUMBER_TEL:0:1} -eq 0 ]]; then
@@ -325,7 +334,7 @@ function telFormat () {
 	fi
 }
 
-# Téléphone direct
+# Traitement numéro de téléphone direct
 OLDIFS=$IFS; IFS=$'\n'
 for LINE in $(cat ${CONTENT_USER} | grep ^telephoneNumber: | perl -p -e 's/telephoneNumber: //g'| perl -p -e 's/ //g')
 do
@@ -334,7 +343,7 @@ done
 LIGNEDIRECTE=$(cat ${LISTE_TEL} | perl -p -e 's/\n/ - /g' | awk 'sub( "...$", "" )')
 IFS=$OLDIFS
 
-# Mobile pro
+# Traitement numéro de téléphone portable pro
 OLDIFS=$IFS; IFS=$'\n'
 for LINE in $(cat ${CONTENT_USER} | grep ^mobile: | perl -p -e 's/mobile: //g'| perl -p -e 's/ //g')
 do
@@ -343,15 +352,14 @@ done
 MOBILE=$(cat ${LISTE_MOBILE} | perl -p -e 's/\n/ - /g' | awk 'sub( "...$", "" )')
 IFS=$OLDIFS
 
-# Modifier le fichier source
+# Modifier le fichier source (template LibreOffice)
 cat ${MODELE} | perl -p -e "s/NOMCOMPLET/${NOMCOMPLET}/g" | perl -p -e "s/LIGNEDIRECTE/${LIGNEDIRECTE}/g" | sed "s/MAIL/${MAIL}/" | perl -p -e "s/TITRE/${TITRE}/g" | perl -p -e "s/INITIALES/${INITIALES}/g"> ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
 [[ ! -z ${MOBILE} ]] &&	cat ${MODELE} | perl -p -e "s/MOBILE/${MOBILE}/g" > ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
 [[ -z ${MOBILE} ]] && cat ${MODELE} | perl -p -e "s/Mobile :/ /g" | perl -p -e "s/MOBILE/ /g" > ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
 
-# Nouveau NOM
+# Préparation du Nom du fichier template LibreOffice
 [[ ${TAG} == "" ]] && NOUVEAU_NOM=$(echo ${RACINE} | tr [a-z] [A-Z])-$(echo ${INITIALES} | tr [a-z] [A-Z])
 [[ ! ${TAG} == "" ]] && NOUVEAU_NOM=$(echo ${TAG})-$(echo ${RACINE} | tr [a-z] [A-Z])-$(echo ${INITIALES} | tr [a-z] [A-Z])
-
 # Modifier méta
 cat ${META} | perl -p -e "s/${RACINE}/${NOUVEAU_NOM}/g" > ${META}.new && mv ${META} ${META}.old && mv ${META}.new ${META} && rm ${META}.old
 
@@ -361,7 +369,7 @@ echo -e "\nZIP du nouveau template :"
 zip -r newtemplate.ott *
 [ $? -ne 0 ] && error 7 "Problème pour créer l'archive '${DIR_MODELE}/newtemplate.ott'."
 
-# Déplacer dans le répertoire
+# Déplacer dans le répertoire souhaité le résultat
 echo -e "\nDéplacement vers '${DIR_EXPORT}/${NOUVEAU_NOM}.ott' :"
 mv "${DIR_MODELE}/newtemplate.ott" "${DIR_EXPORT}/${NOUVEAU_NOM}.ott"
 [ $? -ne 0 ] && error 7 "Problème pour déplacer le fichier à l'emplacement '${DIR_EXPORT}/${NOUVEAU_NOM}.ott'."
