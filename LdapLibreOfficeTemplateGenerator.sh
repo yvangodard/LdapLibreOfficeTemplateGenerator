@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSION="LdapLibreOfficeTemplateGenerator v 1.1 - 2014 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/c62RYH"
+VERSION="LdapLibreOfficeTemplateGenerator v 1.2 - 2014 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/c62RYH"
 SCRIPT_DIR=$(dirname $0)
 SCRIPT_NAME=$(basename $0)
 SCRIPT_NAME_WITHOUT_EXT=$(echo "${SCRIPT_NAME}" | cut -f1 -d '.')
@@ -371,9 +371,11 @@ zip -r newtemplate.ott *
 [ $? -ne 0 ] && error 7 "Problème pour créer l'archive '${DIR_MODELE}/newtemplate.ott'."
 
 # Déplacer dans le répertoire souhaité le résultat
-echo -e "\nDéplacement vers '${DIR_EXPORT}/${NOUVEAU_NOM}.ott' :"
-mv "${DIR_MODELE}/newtemplate.ott" "${DIR_EXPORT}/${NOUVEAU_NOM}.ott"
-[ $? -ne 0 ] && error 7 "Problème pour déplacer le fichier à l'emplacement '${DIR_EXPORT}/${NOUVEAU_NOM}.ott'."
+echo -e "\nDéplacement vers '${DIR_EXPORT%/}/${NOUVEAU_NOM}.ott' :"
+mv "${DIR_MODELE}/newtemplate.ott" "${DIR_EXPORT%/}/${NOUVEAU_NOM}.ott"
+[ $? -ne 0 ] && error 7 "Problème pour déplacer le fichier à l'emplacement '${DIR_EXPORT%/}/${NOUVEAU_NOM}.ott'."
+find "${DIR_EXPORT%/}/" -name ".DS_Store" -delete
+[ $? -ne 0 ] && error 7 "Problème lors du nettoyage des fichiers .DS_Store à l'emplacement '${DIR_EXPORT%/}/'."
 cd ~
 
 alldone 0

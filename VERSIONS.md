@@ -10,6 +10,11 @@ Versions
 
 \! Known issue / missing feature
 
+#### 1.2
+------------
+\* Avoid creating `.DS_Store` file in `~/Library/Application\ Support/LibreOffice/4/user/template`
+
+\* Improved folder variables
 
 #### 1.1
 ------------
