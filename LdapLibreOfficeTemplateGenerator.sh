@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSION="LdapLibreOfficeTemplateGenerator v 1.0 - 2014 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/c62RYH"
+VERSION="LdapLibreOfficeTemplateGenerator v 1.1 - 2014 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/c62RYH"
 SCRIPT_DIR=$(dirname $0)
 SCRIPT_NAME=$(basename $0)
 SCRIPT_NAME_WITHOUT_EXT=$(echo "${SCRIPT_NAME}" | cut -f1 -d '.')
@@ -15,12 +15,13 @@ LDAP_DN_USER_BRANCH="cn=users"
 FILTER_ON_DOMAIN=""
 DOMAIN_EMAIL=""
 IP_FILTER=0
-DIR_EXPORT=~/Library/Application\ Support/LibreOffice/4/user/template
+HOME_DIR=$(echo ~)
+DIR_EXPORT=${HOME_DIR%/}/Library/Application\ Support/LibreOffice/4/user/template
 TAG=""
 HELP="no"
 LOG_ACTIVE=0
 USER_UID=$(whoami)
-LOG=~/Library/logs/${SCRIPT_NAME_WITHOUT_EXT}.log
+LOG=${HOME_DIR%/}/Library/logs/${SCRIPT_NAME_WITHOUT_EXT}.log
 # Fichier temp
 LOG_TEMP=$(mktemp /tmp/${SCRIPT_NAME_WITHOUT_EXT}.XXXXX)
 TEMP_IP=$(mktemp /tmp/${SCRIPT_NAME_WITHOUT_EXT}_tempip.XXXXX)
@@ -254,7 +255,7 @@ MODELE="${DIR_MODELE}/content.xml"
 META="${DIR_MODELE}/meta.xml"
 
 # Test répertoire export
-[[ ! -d ${DIR_EXPORT} ]] && mkdir -p ${DIR_EXPORT}
+[[ ! -d ${DIR_EXPORT} ]] && mkdir -p "${DIR_EXPORT}"
 [[ ! -d ${DIR_EXPORT} ]] && error 7 "Problème pour accéder au répertoire '${DIR_EXPORT}'."
 [[ ! -w ${DIR_EXPORT} ]] && error 7 "Problème de droits d'accès en écriture au dossier ${DIR_EXPORT}'."
 
@@ -291,7 +292,7 @@ INITIALES=$(cat ${CONTENT_USER} | grep ^initials: | perl -p -e 's/initials: //g'
 cat ${CONTENT_USER} | grep ^mail: | perl -p -e 's/mail: //g' > ${LISTE_MAIL}
 LINES_NUMBER=$(cat ${LISTE_MAIL} | grep "." | wc -l) 
 if [ ${LINES_NUMBER} -eq 1 ]; then
-	MAIL=$(head -n 1 {LISTE_MAIL})
+	MAIL=$(head -n 1 ${LISTE_MAIL})
 elif [ ${LINES_NUMBER} -gt 1 ]; then
 	if [ -z ${DOMAIN_EMAIL} ]; then
 		cat ${LISTE_MAIL} | grep ${USER_UID} > /dev/null 2>&1
