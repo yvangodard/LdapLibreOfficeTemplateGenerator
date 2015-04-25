@@ -10,6 +10,10 @@ Versions
 
 \! Known issue / missing feature
 
+#### 1.3
+------------
+\* Correction to support LDIF splitted lines, thanks to Guillaume Bougard (gbougard@pkg.fr)
+
 #### 1.2
 ------------
 \* Avoid creating `.DS_Store` file in `~/Library/Application\ Support/LibreOffice/4/user/template`

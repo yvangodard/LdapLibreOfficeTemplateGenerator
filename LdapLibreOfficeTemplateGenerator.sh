@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSION="LdapLibreOfficeTemplateGenerator v 1.2 - 2014 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/c62RYH"
+VERSION="LdapLibreOfficeTemplateGenerator v 1.3 - 2014 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/c62RYH"
 SCRIPT_DIR=$(dirname $0)
 SCRIPT_NAME=$(basename $0)
 SCRIPT_NAME_WITHOUT_EXT=$(echo "${SCRIPT_NAME}" | cut -f1 -d '.')
@@ -261,6 +261,8 @@ META="${DIR_MODELE}/meta.xml"
 
 # Récupérer les variables nécessaires
 ${LDAP_COMMAND_BEGIN} -b ${LDAP_DN_USER_BRANCH},${LDAP_DN_BASE} -x uid=${USER_UID} givenName sn cn title telephoneNumber mobile mail initials > ${CONTENT_USER_BASE}
+# Correction to support LDIF splitted lines, thanks to Guillaume Bougard (gbougard@pkg.fr)
+perl -n -e 'chomp ; print "\n" unless (substr($_,0,1) eq " " || !defined($lines)); $_ =~ s/^\s+// ; print $_ ; $lines++;' -i "${CONTENT_USER_BASE}"
 
 # Décodage des informations
 OLDIFS=$IFS; IFS=$'\n'
