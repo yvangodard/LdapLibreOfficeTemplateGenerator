@@ -261,6 +261,7 @@ META="${DIR_MODELE}/meta.xml"
 
 # Récupérer les variables nécessaires
 ${LDAP_COMMAND_BEGIN} -b ${LDAP_DN_USER_BRANCH},${LDAP_DN_BASE} -x uid=${USER_UID} givenName sn cn title telephoneNumber mobile mail initials > ${CONTENT_USER_BASE}
+
 # Correction to support LDIF splitted lines, thanks to Guillaume Bougard (gbougard@pkg.fr)
 perl -n -e 'chomp ; print "\n" unless (substr($_,0,1) eq " " || !defined($lines)); $_ =~ s/^\s+// ; print $_ ; $lines++;' -i "${CONTENT_USER_BASE}"
 
