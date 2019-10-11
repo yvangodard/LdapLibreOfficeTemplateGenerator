@@ -10,6 +10,10 @@ Versions
 
 \! Known issue / missing feature
 
+#### 1.5
+------------
+\- Ajout d'une fonction de correction du nom du template dans le fichier meta.xml
+
 #### 1.3
 ------------
 \* Correction to support LDIF splitted lines, thanks to Guillaume Bougard (gbougard@pkg.fr)

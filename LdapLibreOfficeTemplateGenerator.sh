@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSION="LdapLibreOfficeTemplateGenerator v 1.3 - 2014 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/c62RYH"
+VERSION="LdapLibreOfficeTemplateGenerator v 1.5 - 2019 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/c62RYH"
 SCRIPT_DIR=$(dirname $0)
 SCRIPT_NAME=$(basename $0)
 SCRIPT_NAME_WITHOUT_EXT=$(echo "${SCRIPT_NAME}" | cut -f1 -d '.')
@@ -357,8 +357,10 @@ MOBILE=$(cat ${LISTE_MOBILE} | perl -p -e 's/\n/ - /g' | awk 'sub( "...$", "" )'
 IFS=$OLDIFS
 
 # Modifier le fichier source (template LibreOffice)
-cat ${MODELE} | perl -p -e "s/NOMCOMPLET/${NOMCOMPLET}/g" | perl -p -e "s/LIGNEDIRECTE/${LIGNEDIRECTE}/g" | sed "s/MAIL/${MAIL}/" | perl -p -e "s/TITRE/${TITRE}/g" | perl -p -e "s/INITIALES/${INITIALES}/g"> ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
-[[ ! -z ${MOBILE} ]] &&	cat ${MODELE} | perl -p -e "s/MOBILE/${MOBILE}/g" > ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
+cat ${MODELE} | perl -p -e "s/NOMCOMPLET/${NOMCOMPLET}/g" | sed "s/MAIL/${MAIL}/" | perl -p -e "s/TITRE/${TITRE}/g" | perl -p -e "s/INITIALES/${INITIALES}/g"> ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
+[[ ! -z ${LIGNEDIRECTE} ]] && cat ${MODELE} | perl -p -e "s/LIGNEDIRECTE/${LIGNEDIRECTE}/g" > ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
+[[ -z ${LIGNEDIRECTE} ]] && cat ${MODELE} | perl -p -e "s/Ligne directe :/ /g" | perl -p -e "s/LIGNEDIRECTE/ /g" > ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
+[[ ! -z ${MOBILE} ]] && cat ${MODELE} | perl -p -e "s/MOBILE/${MOBILE}/g" > ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
 [[ -z ${MOBILE} ]] && cat ${MODELE} | perl -p -e "s/Mobile :/ /g" | perl -p -e "s/MOBILE/ /g" > ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
 
 # Préparation du Nom du fichier template LibreOffice
@@ -366,6 +368,17 @@ cat ${MODELE} | perl -p -e "s/NOMCOMPLET/${NOMCOMPLET}/g" | perl -p -e "s/LIGNED
 [[ ! ${TAG} == "" ]] && NOUVEAU_NOM=$(echo ${TAG})-$(echo ${RACINE} | tr [a-z] [A-Z])-$(echo ${INITIALES} | tr [a-z] [A-Z])
 # Modifier méta
 cat ${META} | perl -p -e "s/${RACINE}/${NOUVEAU_NOM}/g" > ${META}.new && mv ${META} ${META}.old && mv ${META}.new ${META} && rm ${META}.old
+
+OLD_LINE_TITLE=$(xmllint --format ${META} | grep "dc:title")
+NEW_LINE_TITLE="<dc:title>${NOUVEAU_NOM}</dc:title>"
+
+if [[ ! -z ${OLD_LINE_TITLE} ]]; then
+	touch ${META}.new
+	touch ${META}.new2
+	xmllint --format ${META} | grep -v "dc:creator" | grep -v "meta:template" | grep -v "meta:initial-creator" | grep -v "meta:printed-by" | grep -v "meta:print-date" | perl -p -e "s#${OLD_LINE_TITLE}#${NEW_LINE_TITLE}#" > ${META}.new 
+	xmllint --format ${META}.new > ${META}.new2
+	mv ${META} ${META}.old && mv ${META}.new2 ${META} && rm ${META}.old && rm ${META}.new
+fi
 
 # ZIP fichier source
 cd ${DIR_MODELE}
