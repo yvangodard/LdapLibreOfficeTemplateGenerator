@@ -10,6 +10,10 @@ Versions
 
 \! Known issue / missing feature
 
+#### 1.6
+------------
+\* Changement de la chaîne de caractères remplacée pour la fonction
+
 #### 1.5
 ------------
 \- Ajout d'une fonction de correction du nom du template dans le fichier meta.xml

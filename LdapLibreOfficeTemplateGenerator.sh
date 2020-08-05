@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSION="LdapLibreOfficeTemplateGenerator v 1.5 - 2019 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/c62RYH"
+VERSION="LdapLibreOfficeTemplateGenerator v 1.6 - 2020 - Yvan GODARD - godardyvan@gmail.com - http://goo.gl/c62RYH"
 SCRIPT_DIR=$(dirname $0)
 SCRIPT_NAME=$(basename $0)
 SCRIPT_NAME_WITHOUT_EXT=$(echo "${SCRIPT_NAME}" | cut -f1 -d '.')
@@ -357,7 +357,7 @@ MOBILE=$(cat ${LISTE_MOBILE} | perl -p -e 's/\n/ - /g' | awk 'sub( "...$", "" )'
 IFS=$OLDIFS
 
 # Modifier le fichier source (template LibreOffice)
-cat ${MODELE} | perl -p -e "s/NOMCOMPLET/${NOMCOMPLET}/g" | sed "s/MAIL/${MAIL}/" | perl -p -e "s/TITRE/${TITRE}/g" | perl -p -e "s/INITIALES/${INITIALES}/g"> ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
+cat ${MODELE} | perl -p -e "s/NOMCOMPLET/${NOMCOMPLET}/g" | sed "s/MAIL/${MAIL}/" | perl -p -e "s/TITREPERSONNE/${TITRE}/g" | perl -p -e "s/INITIALES/${INITIALES}/g"> ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
 [[ ! -z ${LIGNEDIRECTE} ]] && cat ${MODELE} | perl -p -e "s/LIGNEDIRECTE/${LIGNEDIRECTE}/g" > ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
 [[ -z ${LIGNEDIRECTE} ]] && cat ${MODELE} | perl -p -e "s/Ligne directe :/ /g" | perl -p -e "s/LIGNEDIRECTE/ /g" > ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
 [[ ! -z ${MOBILE} ]] && cat ${MODELE} | perl -p -e "s/MOBILE/${MOBILE}/g" > ${MODELE}.new && mv ${MODELE} ${MODELE}.old && mv ${MODELE}.new ${MODELE} && rm ${MODELE}.old
